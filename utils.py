@@ -15,8 +15,6 @@ import json
 import pmdarima as pm
 from statsmodels.tsa.seasonal import seasonal_decompose
 
-
-# update: forecast_arima() # 09/15/2020
 def forecast_arima(dataset, name, choice, figsize = (20, 5), pred_ahead = 10, freq = None, show = False, save = "."):
     '''
     dataset can only be data of new cases per month, i.e. choice = 'new'
@@ -24,7 +22,7 @@ def forecast_arima(dataset, name, choice, figsize = (20, 5), pred_ahead = 10, fr
     if choice != "new":
         print('>>> ERROR: Please feed dataset on new daily cases for arima analysis.')
         exit(0)
-    data = pd.DataFrame(data = {'value': dataset.loc[name].tolist()}, 
+    data = pd.DataFrame(data = {'value':dataset.loc[name].tolist()}, 
                    index = pd.to_datetime(dataset.columns))
     smodel = pm.auto_arima(data, start_p=1, start_q=1,
                          test='adf',
@@ -34,8 +32,10 @@ def forecast_arima(dataset, name, choice, figsize = (20, 5), pred_ahead = 10, fr
                          error_action='ignore',  
                          suppress_warnings=True, 
                          stepwise=True)
-    train = data.loc['2020-01-22':'2020-09-01']
-    test = data.loc['2020-09-01':]
+    columns = data.index.tolist()
+    train_size = int(len(columns)*0.9)
+    train = data.loc[columns[0]:columns[train_size]]
+    test = data.loc[columns[train_size]:]
     smodel.fit(train)
     future_forecast, confint = smodel.predict(n_periods=len(test)+pred_ahead, return_conf_int = True)
     test_date = pd.date_range(start=test.index[0],periods=len(test)+pred_ahead, freq = None)

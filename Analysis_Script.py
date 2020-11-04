@@ -1,8 +1,5 @@
 #!/usr/local/bin/python3
 # File created on 2020/09/02
-# File most recently updated on 2020/09/14 (added functions from fuzzywuzzy) as well as optmizes argument parsing and time efficiency
-# File most recently updated on 2020/09/17 added codes to check latest version of df_files are saved
-
 
 # Basic Info
 __author__ = "Zhang, Jianxiang (Tom)"
