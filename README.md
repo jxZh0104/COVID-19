@@ -14,3 +14,5 @@ Simply run
 'chmod +x COVID-Analysis.sh'
 And then
 './COVID-Analysis.sh'
+
+'GUI.py' generates a simple GUI for querying number of confirmed cases.
