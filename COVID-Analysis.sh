@@ -9,6 +9,20 @@ then
     echo ">>> Data download and preliminary cleaning complete."
 fi
 
+read -p ">>> Update database?: " update
+if [ $update = true ]
+then 
+    python3 database.py
+    echo ">>> Database update complete."
+fi
+
+read -p ">>> Manual Check on Statistics With GUI?: " check
+if [ $check = true ]
+then 
+    echo ">>> Preparing GUI..."
+    python3 GUI.py
+fi
+
 read -p ">>> Daily Check on CA Cases?: " dailyCheck
 if [ $dailyCheck = true ]
 then 
@@ -16,6 +30,16 @@ then
     python3 Analysis_Script.py --df us_counts_new --print True
     echo ">>> Generating forecast plot for California..."
     python3 Analysis_Script.py --df us_counts_new --name California --forecast True --show True --arima True
+    echo ">>> Daily data checking and forecasting complete."
+fi
+
+read -p ">>> Daily Check on US Cases?: " dailyCheckUs
+if [ $dailyCheckUs = true ]
+then 
+echo ">>> Generating global daily confirmed cases data..."
+    python3 Analysis_Script.py --df global_counts_new --print True
+    echo ">>> Generating forecast plot for US..."
+    python3 Analysis_Script.py --df global_counts_new --name US --forecast True --show True --arima True
     echo ">>> Daily data checking and forecasting complete."
 else
     # source: https://tecadmin.net/use-logical-or-and-in-shell-script/
@@ -26,7 +50,7 @@ else
         read -p ">>> Enter forecast (True or False): " second
         if [ $second = "True" ]
         then
-            read -p ">>> Enter region name for analysis (True or False): " third
+            read -p ">>> Enter region name for analysis: " third
             read -p ">>> Use ARIMA for forecast? (True or False): " fourth
             read -p ">>> Show interactive plot? (True or False): " fifth
             python3 Analysis_Script.py --df $first --forecast $second --name $third --arima $fourth --show $fifth
