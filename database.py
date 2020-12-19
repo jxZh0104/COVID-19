@@ -1,7 +1,9 @@
 import pandas as pd
+import pyreadr
 import sqlite3
 import os
 from datetime import datetime
+from datetime import date
 from dateutil.parser import parse
 from utils import *
 import shutil
@@ -93,7 +95,7 @@ def get_data():
             with open('data_entries/' + name[:-4] + '.txt', 'w+') as f:
                 for region in list(data_dict_geo[name].index):
                     f.write(region + '\n')
-    # output csv files into anothet dorectory:
+    # output csv files into another dorectory:
     if os.path.exists('df_files'):
         shutil.rmtree('df_files')
     os.makedirs('df_files')
@@ -101,9 +103,20 @@ def get_data():
         data_dict[name].to_csv('df_files/' + name + '.csv')
     for name in list(data_dict_geo.keys()):
         data_dict_geo[name].to_csv('df_files/' + name + '.csv')
+    
+    # download dataset for Berkeley
+    data = pd.read_csv('https://data.cityofberkeley.info/resource/xn6j-b766.csv')
+    data.iloc[:,0] = [date[:10] for date in data.iloc[:,0]]
+    newData = pd.DataFrame(data = {"Date": data.iloc[:,0], 
+                                    "Daily Cases": data.iloc[:,1],
+                                    "Accumulative Cases": data.iloc[:,2]})
+    newData.to_csv('df_files/Berkeley.csv')
 
-
-get_data()
+# check if the dataset is up-to-date
+modified_time = datetime.fromtimestamp(os.path.getmtime('df_files')).strftime('%Y-%m-%d')
+modified_time = datetime.strptime(modified_time, '%Y-%m-%d').date()
+if not (os.path.exists('df_files') and modified_time >= date.today()): # do not waste time generates dfs once more
+    get_data()
 
 geoFiles = []
 tableNames = []
@@ -134,6 +147,17 @@ con = sqlite3.connect("sqlite3/COVID_database.db")
 cursorObj = con.cursor()
 for i in range(len(geoFiles)):
     createTable(cursorObj, geoFiles[i], tableNames[i])
+
+# create database for Berkeley
+data = pd.read_csv('df_files/Berkeley.csv', index_col = 0)
+cursorObj.execute("DROP TABLE IF EXISTS Berkeley")
+cursorObj.execute("CREATE TABLE Berkeley(Date TEXT PRIMARY KEY, New INTEGER, Total INTEGER);")
+to_db = [tuple([data.iloc[i, 0], int(data.iloc[i, 1]), int(data.iloc[i, 2])]) for i in range(len(data))]
+cursorObj.executemany("INSERT INTO Berkeley(Date, New, Total) VALUES (?, ?, ?);", to_db)
+#cursorObj.execute("SELECT * FROM Berkeley")
+#print(cursorObj.fetchall())
+
+
 con.commit()
 con.close()
 

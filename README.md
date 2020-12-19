@@ -15,4 +15,6 @@ Simply run
 And then
 './COVID-Analysis.sh'
 
-'GUI.py' generates a simple GUI for querying number of confirmed cases.
+'GUI.py' generates a simple GUI for querying number of confirmed cases and can plot cases in Berkeley
+‘usGUI.py' generates a simple GUI for querying number of confirmed cases in different states of US and can plot them
+'globalGUI.py' generates a simple GUI for querying number of confirmed cases in different countries and can plot them
