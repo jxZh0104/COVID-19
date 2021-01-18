@@ -12,7 +12,7 @@ OR
 
 Simply run 
 'chmod +x COVID-Analysis.sh'
-And then
+followed by 
 './COVID-Analysis.sh'
 
 'GUI.py' generates a simple GUI for querying number of confirmed cases and can plot cases in Berkeley<br/>
